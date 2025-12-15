@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: cyberradar
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: ABUSEIPDB_API_KEY
+        value: d22aadb03022c3fac0fd8d0925011264e6893a46c2a8c9bd33173391ecadacd7210311ac151afe6d
+      - key: VT_API_KEY
+        value: 066b23050efa7ccb085045429ab7bc2db53a2a1a742158bd73399918996825e3
+      - key: CYBERRADAR_SECRET
+        value: cyberbaby_super_secret_cookie_93872

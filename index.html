@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cyber Radar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg-main: #020617;
+      --bg-elevated: #020617;
+      --bg-soft: #0b1120;
+      --accent: #22d3ee;
+      --accent-strong: #0ea5e9;
+      --danger: #fb7185;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --border-soft: #1f2937;
+      --card-radius: 18px;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.7);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #0b1120 0, #020617 45%, #000 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+    }
+
+    /* Top nav */
+
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      backdrop-filter: blur(18px);
+      background: linear-gradient(
+        to bottom,
+        rgba(2, 6, 23, 0.96),
+        rgba(2, 6, 23, 0.88),
+        transparent
+      );
+      border-bottom: 1px solid rgba(15, 23, 42, 0.8);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 12px 18px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      font-size: 18px;
+      text-transform: uppercase;
+    }
+
+    .brand-pill {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #22d3ee, #0f172a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 24px rgba(56, 189, 248, 0.6);
+      font-size: 14px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav-btn {
+      position: relative;
+      border: none;
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 12px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.14s ease-out;
+    }
+
+    .nav-btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      border: 1px solid transparent;
+      background: radial-gradient(circle at top left, #22d3ee, transparent);
+      opacity: 0;
+      z-index: -1;
+      transition: opacity 0.14s ease-out;
+    }
+
+    .nav-btn:hover {
+      color: var(--text-main);
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    .nav-btn.active {
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--accent);
+    }
+
+    .nav-btn.active::after {
+      opacity: 0.7;
+    }
+
+    /* Layout */
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 20px 18px 30px;
+    }
+
+    .section {
+      display: none;
+      animation: fadeIn 0.22s ease-out;
+    }
+    .section.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin: 0 0 6px;
+    }
+
+    .section-subtitle {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, #020617, #020617);
+      border-radius: var(--card-radius);
+      border: 1px solid rgba(30, 64, 175, 0.55);
+      box-shadow: var(--shadow-soft);
+    }
+
+    /* IOC SCANNER */
+
+    .ioc-search-wrapper { margin-bottom: 20px; }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.98);
+      border-radius: 999px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
+      padding: 4px;
+      overflow: hidden;
+    }
+
+    .search-icon {
+      padding: 0 10px 0 16px;
+      display: flex;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+
+    .search-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: var(--text-main);
+      font-size: 15px;
+      padding: 8px 4px;
+      outline: none;
+    }
+
+    .search-input::placeholder { color: #4b5563; }
+
+    .search-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      background: linear-gradient(135deg, #22d3ee, #0ea5e9);
+      color: #020617;
+      cursor: pointer;
+      margin-left: 6px;
+      box-shadow: 0 12px 32px rgba(34, 211, 238, 0.75);
+      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, opacity 0.06s;
+    }
+
+    .search-btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: 0 8px 22px rgba(34, 211, 238, 0.4);
+    }
+
+    .search-btn:not(:disabled):hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 34px rgba(34, 211, 238, 0.85);
+    }
+
+    .ioc-layout { margin-top: 10px; }
+
+    .ioc-top-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.3fr) minmax(0, 1.3fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .metric-card { padding: 14px 16px; }
+
+    .metric-label {
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .metric-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.1;
+    }
+
+    .metric-stack {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .metric-main {
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .metric-main.danger { color: var(--danger); }
+
+    .metric-denom {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .ioc-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 14px;
+    }
+
+    @media (max-width: 900px) {
+      .ioc-top-row { grid-template-columns: minmax(0, 1fr); }
+      .ioc-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    .info-card {
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: radial-gradient(circle at top left, #020617, #020617);
+      border: 1px solid rgba(30, 64, 175, 0.35);
+    }
+
+    .info-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .info-value {
+      font-size: 14px;
+      color: var(--text-main);
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .info-muted { color: var(--text-muted); }
+
+    .ioc-status {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .ioc-status strong { color: var(--accent); }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(30, 64, 175, 0.5);
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-left: 8px;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+    }
+
+    /* NEXT STEPS CARD */
+
+    .next-card {
+      margin-top: 16px;
+      padding: 14px 16px 12px;
+    }
+
+    .next-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin: 0 0 4px;
+    }
+
+    .next-summary {
+      margin: 0 0 6px;
+      font-size: 13px;
+    }
+
+    .next-summary strong { color: var(--accent); }
+
+    .next-list {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .next-list li { margin-bottom: 3px; }
+
+    /* CYBER NEWS */
+
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .news-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 620px) {
+      .news-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    .news-card {
+      position: relative;
+      border-radius: 20px;
+      padding: 16px 14px 18px;
+      background: radial-gradient(circle at top, #020617, #020617);
+      border: 1px solid rgba(34, 211, 238, 0.5);
+      box-shadow:
+        0 0 18px rgba(34, 211, 238, 0.3),
+        0 18px 35px rgba(0, 0, 0, 0.85);
+    }
+
+    .news-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 10px;
+    }
+
+    .news-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .news-source {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 10px;
+      color: #38bdf8;
+    }
+
+    .news-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 11px;
+    }
+
+    .news-link:hover { text-decoration: underline; }
+
+    /* FILE SCANNER */
+
+    .file-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 880px) {
+      .file-layout { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    .file-card { padding: 18px 18px 16px; }
+
+    .file-label {
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .file-input-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .file-input {
+      flex: 1;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+      font-size: 13px;
+    }
+
+    .file-input::file-selector-button {
+      border: none;
+      border-radius: 999px;
+      padding: 6px 10px;
+      margin-right: 8px;
+      background: rgba(30, 64, 175, 0.8);
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .file-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      background: linear-gradient(135deg, #22d3ee, #0ea5e9);
+      color: #020617;
+      cursor: pointer;
+      box-shadow: 0 10px 28px rgba(34, 211, 238, 0.7);
+      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, opacity 0.06s;
+    }
+
+    .file-btn:disabled {
+      opacity: 0.6;
+      box-shadow: 0 6px 18px rgba(34, 211, 238, 0.5);
+      cursor: default;
+    }
+
+    .file-btn:not(:disabled):hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 32px rgba(34, 211, 238, 0.9);
+    }
+
+    .file-helper {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .file-result {
+      font-family: "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono",
+        "Courier New", monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      max-height: 210px;
+      overflow: auto;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: radial-gradient(circle at top left, #020617, #020617);
+      border: 1px solid rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .file-hero {
+      position: relative;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .file-hero-title {
+      font-size: 26px;
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .file-hero-sub {
+      margin: 0;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .lock-orbit {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.7;
+      background:
+        radial-gradient(circle at 30% 0, rgba(56, 189, 248, 0.25), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(79, 70, 229, 0.35), transparent 60%);
+    }
+
+    .lock-core-wrap {
+      position: relative;
+      margin-top: 28px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .lock-core {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      border-radius: 26px;
+      background: radial-gradient(circle at 30% 20%, #22d3ee, #020617);
+      box-shadow:
+        0 0 50px rgba(34, 211, 238, 0.8),
+        0 26px 80px rgba(0, 0, 0, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .lock-ring {
+      position: absolute;
+      border-radius: 40px;
+      inset: 18%;
+      border: 1px solid rgba(15, 23, 42, 0.75);
+    }
+
+    .lock-inner {
+      position: relative;
+      width: 60px;
+      height: 60px;
+      border-radius: 18px;
+      border: 2px solid rgba(15, 23, 42, 0.85);
+      background: rgba(15, 23, 42, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lock-u {
+      width: 32px;
+      height: 32px;
+      border-radius: 18px 18px 14px 14px;
+      border: 2px solid #e0f2fe;
+      border-bottom: 4px solid #e0f2fe;
+      border-top-width: 2px;
+      position: relative;
+    }
+
+    .lock-u::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 7px;
+      transform: translateX(-50%);
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #e0f2fe;
+    }
+
+    .file-hero-chip {
+      margin-top: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(30, 64, 175, 0.6);
+      color: var(--text-muted);
+      position: relative;
+      z-index: 1;
+    }
+
+    .chip-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+    }
+
+    /* HISTORY */
+
+    .history-card { padding: 16px 16px 14px; }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .history-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: var(--text-muted);
+    }
+
+    .history-clear {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 11px;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 2px 0;
+    }
+
+    .history-table-wrap {
+      max-height: 340px;
+      overflow: auto;
+      border-radius: 14px;
+      border: 1px solid rgba(15, 23, 42, 0.9);
+      background: radial-gradient(circle at top left, #020617, #020617);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    thead {
+      background: rgba(15, 23, 42, 0.96);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    th, td {
+      padding: 7px 10px;
+      text-align: left;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.7);
+      white-space: nowrap;
+    }
+
+    th {
+      font-weight: 500;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 11px;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.7);
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.45);
+    }
+
+    .history-ioc {
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pill-score {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(30, 64, 175, 0.7);
+    }
+
+    .pill-score.bad { border-color: rgba(248, 113, 113, 0.9); color: #fecaca; }
+
+    .empty-text {
+      padding: 10px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Misc */
+
+    .error-text {
+      color: #fecaca;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    .muted { color: var(--text-muted); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <header class="top-nav">
+    <div class="nav-inner">
+      <div class="brand">
+        <div class="brand-pill">CR</div>
+        <div>Cyber&nbsp;Radar</div>
+      </div>
+      <nav class="nav-links">
+        <button class="nav-btn active" data-section="news-section">Cyber News</button>
+        <button class="nav-btn" data-section="ioc-section">IOC Scanner</button>
+        <button class="nav-btn" data-section="file-section">File Scanner</button>
+        <button class="nav-btn" data-section="history-section">Scan History</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <!-- CYBER NEWS (DEFAULT) -->
+    <section id="news-section" class="section active">
+      <div class="section-header">
+        <h1 class="section-title">Cyber News</h1>
+        <p class="section-subtitle">
+          Live security.
+        </p>
+      </div>
+      <div class="card" style="padding:16px 16px 18px;">
+        <div id="news-grid" class="news-grid"></div>
+        <div id="news-error" class="error-text" style="display:none;"></div>
+      </div>
+    </section>
+
+    <!-- IOC SCANNER -->
+    <section id="ioc-section" class="section">
+      <div class="section-header">
+        <h1 class="section-title">IOC Scanner</h1>
+        <p class="section-subtitle">
+          Search for an IP, domain, or file hash. Scores and network details below.
+        </p>
+      </div>
+
+      <div class="ioc-search-wrapper">
+        <div class="search-bar">
+          <div class="search-icon">🔍</div>
+          <input
+            id="ioc-input"
+            class="search-input"
+            type="text"
+            placeholder="Search for an IP, domain, or file hash"
+          />
+          <button id="ioc-btn" class="search-btn">Scan</button>
+        </div>
+      </div>
+
+      <div class="ioc-layout">
+        <div class="ioc-top-row">
+          <div class="card metric-card">
+            <div class="metric-label">Analysis Result</div>
+            <div class="metric-subtitle">Total Score</div>
+            <div id="total-score" class="metric-value">–</div>
+          </div>
+
+          <div class="card metric-card">
+            <div class="metric-label">VirusTotal Score</div>
+            <div class="metric-subtitle">Detections / Total</div>
+            <div class="metric-stack">
+              <span id="vt-main" class="metric-main danger">–</span>
+              <span id="vt-denom" class="metric-denom">/ –</span>
+            </div>
+          </div>
+
+          <div class="card metric-card">
+            <div class="metric-label">AbuseDB Score</div>
+            <div class="metric-subtitle">Confidence / 100</div>
+            <div class="metric-stack">
+              <span id="abuse-main" class="metric-main">–</span>
+              <span class="metric-denom">/ 100</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ioc-grid">
+          <div class="info-card">
+            <div class="info-label">Domain Name</div>
+            <div id="info-domain" class="info-value info-muted">example.com</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">IP Address</div>
+            <div id="info-ip" class="info-value info-muted">–</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">ISP</div>
+            <div id="info-isp" class="info-value info-muted">–</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Usage Type</div>
+            <div id="info-usage" class="info-value info-muted">–</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">ASN</div>
+            <div id="info-asn" class="info-value info-muted">–</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Hostname(s)</div>
+            <div id="info-hostnames" class="info-value info-muted">–</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Country</div>
+            <div id="info-country" class="info-value info-muted">–</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">City</div>
+            <div id="info-city" class="info-value info-muted">–</div>
+          </div>
+        </div>
+
+        <div class="ioc-status">
+          <span id="ioc-status-text">Waiting for scan…</span>
+          <span class="badge-pill">
+            <span class="badge-dot"></span>
+            Real-time IOC check
+          </span>
+          <div id="ioc-error" class="error-text" style="margin-top:4px; display:none;"></div>
+        </div>
+
+        <div id="ioc-next" class="card next-card" style="display:none;">
+          <p class="next-title">Next steps</p>
+          <p id="ioc-next-summary" class="next-summary"></p>
+          <ul id="ioc-next-list" class="next-list"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- FILE SCANNER -->
+    <section id="file-section" class="section">
+      <div class="section-header">
+        <h1 class="section-title">File Scanner</h1>
+        <p class="section-subtitle">
+          Upload a suspicious file.
+        </p>
+      </div>
+
+      <div class="file-layout">
+        <div class="card file-card">
+          <div class="file-label">Upload file</div>
+          <div class="file-input-row">
+            <input id="file-input" class="file-input" type="file" />
+            <button id="file-btn" class="file-btn">Scan file</button>
+          </div>
+          <div class="file-helper">
+            Files are processed by your Flask backend and (optionally) VirusTotal / other engines.
+          </div>
+          <div id="file-result" class="file-result">Scan result will appear here…</div>
+          <div id="file-error" class="error-text" style="display:none;"></div>
+
+          <div id="file-next" class="card next-card" style="margin-top:12px; display:none;">
+            <p class="next-title">Next steps</p>
+            <p id="file-next-summary" class="next-summary"></p>
+            <ul id="file-next-list" class="next-list"></ul>
+          </div>
+        </div>
+
+        <div class="card file-hero">
+          <div class="lock-orbit"></div>
+          <div>
+            <p class="file-hero-title">File scanner</p>
+            <p class="file-hero-sub">
+              Circuit-board style padlock block, like your image. Pure CSS, no external assets.
+            </p>
+          </div>
+          <div class="lock-core-wrap">
+            <div class="lock-core">
+              <div class="lock-ring"></div>
+              <div class="lock-inner">
+                <div class="lock-u"></div>
+              </div>
+            </div>
+          </div>
+          <div class="file-hero-chip">
+            <span class="chip-dot"></span>
+            Real-time hash &amp; reputation check
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCAN HISTORY -->
+    <section id="history-section" class="section">
+      <div class="section-header">
+        <h1 class="section-title">Scan History</h1>
+        <p class="section-subtitle">
+          Local log of your recent IOC scans (saved per browser using localStorage).
+        </p>
+      </div>
+
+      <div class="card history-card">
+        <div class="history-header">
+          <div class="history-title">Recent scans</div>
+          <button id="history-clear" class="history-clear">Clear history</button>
+        </div>
+        <div class="history-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:32%;">Indicator</th>
+                <th style="width:10%;">Type</th>
+                <th style="width:12%;">Total</th>
+                <th style="width:12%;">VT</th>
+                <th style="width:12%;">AbuseDB</th>
+                <th style="width:24%;">Time</th>
+              </tr>
+            </thead>
+            <tbody id="history-body"></tbody>
+          </table>
+          <div id="history-empty" class="empty-text">No scans yet.</div>
+        </div>
+        <p class="muted" style="margin-top:8px;">
+          This is frontend-only logging. For server-side audit trail, log the same data in your Flask `/api/check`.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const HISTORY_KEY = "cyber_radar_scan_history_v1";
+    let historyItems = [];
+
+    function switchSection(targetId) {
+      document.querySelectorAll(".section").forEach(sec => {
+        sec.classList.toggle("active", sec.id === targetId);
+      });
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.section === targetId);
+      });
+    }
+
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = value != null && value !== "" ? String(value) : "–";
+    }
+
+    /* ---------- HISTORY ---------- */
+
+    function addHistoryEntry(entry) {
+      historyItems.push(entry);
+      if (historyItems.length > 50) {
+        historyItems = historyItems.slice(historyItems.length - 50);
+      }
+      try {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(historyItems));
+      } catch (e) {}
+      renderHistory();
+    }
+
+    function loadHistory() {
+      try {
+        const raw = localStorage.getItem(HISTORY_KEY);
+        if (raw) historyItems = JSON.parse(raw) || [];
+      } catch (e) {
+        historyItems = [];
+      }
+      renderHistory();
+    }
+
+    function clearHistory() {
+      historyItems = [];
+      try { localStorage.removeItem(HISTORY_KEY); } catch (e) {}
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const body = document.getElementById("history-body");
+      const empty = document.getElementById("history-empty");
+      body.innerHTML = "";
+      if (!historyItems.length) {
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+
+      const items = [...historyItems].reverse();
+      for (const item of items) {
+        const tr = document.createElement("tr");
+
+        const tdIoc = document.createElement("td");
+        tdIoc.className = "history-ioc";
+        tdIoc.textContent = item.ioc || "–";
+        tr.appendChild(tdIoc);
+
+        const tdType = document.createElement("td");
+        tdType.textContent = item.type || "–";
+        tr.appendChild(tdType);
+
+        const tdTotal = document.createElement("td");
+        const pillTotal = document.createElement("span");
+        pillTotal.className = "pill-score" + (item.total_score >= 5 ? " bad" : "");
+        pillTotal.textContent =
+          item.total_score != null ? String(item.total_score) : "–";
+        tdTotal.appendChild(pillTotal);
+        tr.appendChild(tdTotal);
+
+        const tdVT = document.createElement("td");
+        tdVT.textContent =
+          item.vt_detects != null && item.vt_total != null
+            ? item.vt_detects + "/" + item.vt_total
+            : "–";
+        tr.appendChild(tdVT);
+
+        const tdAbuse = document.createElement("td");
+        tdAbuse.textContent =
+          item.abuse_score != null ? item.abuse_score + "/100" : "–";
+        tr.appendChild(tdAbuse);
+
+        const tdTime = document.createElement("td");
+        tdTime.textContent = item.time || "–";
+        tr.appendChild(tdTime);
+
+        body.appendChild(tr);
+      }
+    }
+
+    /* ---------- RISK + NEXT STEPS (IOC) ---------- */
+
+    function classifyIocType(ioc) {
+      const trimmed = (ioc || "").trim();
+      if (!trimmed) return "unknown";
+
+      const hashRegex = /^[a-fA-F0-9]{32,64}$/;
+      const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+
+      if (hashRegex.test(trimmed)) return "file hash";
+      if (ipv4Regex.test(trimmed)) return "IP";
+      if (trimmed.includes(".")) return "domain";
+      return "indicator";
+    }
+
+    function classifyIocRisk(total, vtDet, abuse) {
+      let score = typeof total === "number" ? total : 0;
+      if (!score) {
+        if (typeof vtDet === "number") score += Math.min(10, vtDet);
+        if (typeof abuse === "number") score += abuse / 20;
+      }
+
+      if (score >= 7 || (vtDet || 0) >= 10 || (abuse || 0) >= 80) return "high";
+      if (score >= 4 || (vtDet || 0) >= 3 || (abuse || 0) >= 40) return "medium";
+      if (score <= 1 && (vtDet || 0) === 0 && (abuse || 0) === 0) return "low";
+      return "info";
+    }
+
+    function updateIocNextSteps(level, iocType) {
+      const box = document.getElementById("ioc-next");
+      const summary = document.getElementById("ioc-next-summary");
+      const list = document.getElementById("ioc-next-list");
+
+      if (!level || level === "info") {
+        box.style.display = "none";
+        return;
+      }
+
+      box.style.display = "block";
+      list.innerHTML = "";
+
+      let label;
+      let steps = [];
+
+      if (level === "high") {
+        label = `High risk ${iocType} detected. Treat as malicious.`;
+        steps = [
+          "Immediately isolate affected endpoint(s) from the network.",
+          `Block the ${iocType} on firewalls, proxies, and EDR blocklists.`,
+          "Search SIEM / logs for any connections or events related to this IOC in the past 30–90 days.",
+          "Collect forensic artefacts (logs, memory, suspicious files) before remediation.",
+          "Escalate to incident response and follow your IR playbook."
+        ];
+      } else if (level === "medium") {
+        label = `Suspicious ${iocType} detected. Requires investigation.`;
+        steps = [
+          `Temporarily block the ${iocType} where possible (firewall, proxy, EDR).`,
+          "Check if the IOC is related to a known campaign or malware family.",
+          "Review host and network logs around the time of activity.",
+          "If additional malicious activity is observed, handle it as a high-severity incident."
+        ];
+      } else {
+        label = `Low risk / no obvious malicious signals for this ${iocType}.`;
+        steps = [
+          "Keep the IOC on a watch list for a few days.",
+          "Set lightweight alerts in SIEM for any future hits related to this IOC.",
+          "No immediate blocking required unless your policy is strictly deny-by-default."
+        ];
+      }
+
+      summary.innerHTML = `<strong>${label}</strong>`;
+      for (const s of steps) {
+        const li = document.createElement("li");
+        li.textContent = s;
+        list.appendChild(li);
+      }
+    }
+
+    /* ---------- NEXT STEPS (FILE) ---------- */
+
+    function classifyFileRisk(data) {
+      if (!data) return "info";
+      if (data.malicious === true) return "high";
+
+      const risk = typeof data.risk_score === "number" ? data.risk_score : null;
+      if (risk != null) {
+        if (risk >= 7) return "high";
+        if (risk >= 4) return "medium";
+        if (risk <= 1) return "low";
+      }
+      return "info";
+    }
+
+    function updateFileNextSteps(level) {
+      const box = document.getElementById("file-next");
+      const summary = document.getElementById("file-next-summary");
+      const list = document.getElementById("file-next-list");
+
+      if (!level || level === "info") {
+        box.style.display = "none";
+        return;
+      }
+
+      box.style.display = "block";
+      list.innerHTML = "";
+
+      let label;
+      let steps = [];
+
+      if (level === "high") {
+        label = "Malicious file detected. Treat as confirmed malware.";
+        steps = [
+          "Quarantine or delete the file using your EDR/AV tool (do not execute it).",
+          "Disconnect the affected host from the network until triage is complete.",
+          "Collect a copy of the file and relevant logs for malware analysis in a safe environment.",
+          "Hunt for the file hash and related indicators (IPs/domains) across your environment.",
+          "Trigger your incident response process and update management if impact is confirmed."
+        ];
+      } else if (level === "medium") {
+        label = "Suspicious file detected. Needs deeper investigation.";
+        steps = [
+          "Do not open or execute the file until analysis is completed.",
+          "Submit the file to a sandbox / detonation environment for dynamic analysis.",
+          "Check threat intel sources for related hashes, filenames or infrastructure.",
+          "If multiple engines or rules flag it, promote it to a confirmed incident."
+        ];
+      } else {
+        label = "No strong malicious signals for this file.";
+        steps = [
+          "Keep the hash on a watch list and periodically rescan with updated signatures.",
+          "Allow the file only if it’s from a trusted source and expected in your environment.",
+          "Consider restricting execution for unknown binaries on critical systems."
+        ];
+      }
+
+      summary.innerHTML = `<strong>${label}</strong>`;
+      for (const s of steps) {
+        const li = document.createElement("li");
+        li.textContent = s;
+        list.appendChild(li);
+      }
+    }
+
+    /* ---------- NEWS ---------- */
+
+    async function fetchNews() {
+      const grid = document.getElementById("news-grid");
+      const errEl = document.getElementById("news-error");
+      grid.innerHTML = "";
+      errEl.style.display = "none";
+
+      try {
+        const res = await fetch("/api/news");
+        if (!res.ok) throw new Error("News API error " + res.status);
+        const data = await res.json();
+        const articles = data.articles || data || [];
+
+        if (!articles.length) {
+          errEl.textContent = "No news articles available.";
+          errEl.style.display = "block";
+          return;
+        }
+
+        for (const art of articles.slice(0, 9)) {
+          const card = document.createElement("div");
+          card.className = "news-card";
+
+          const title = document.createElement("p");
+          title.className = "news-title";
+          title.textContent = art.title || "Untitled article";
+          card.appendChild(title);
+
+          const meta = document.createElement("div");
+          meta.className = "news-meta";
+
+          const src = document.createElement("span");
+          src.className = "news-source";
+          src.textContent = (art.source && art.source.name) || art.source || "UNKNOWN";
+          meta.appendChild(src);
+
+          const linkWrap = document.createElement("span");
+          if (art.link || art.url) {
+            const a = document.createElement("a");
+            a.className = "news-link";
+            a.href = art.link || art.url;
+            a.target = "_blank";
+            a.rel = "noopener noreferrer";
+            a.textContent = "Open";
+            linkWrap.appendChild(a);
+          }
+          meta.appendChild(linkWrap);
+
+          card.appendChild(meta);
+          grid.appendChild(card);
+        }
+      } catch (err) {
+        errEl.textContent = "Failed to load news: " + err.message;
+        errEl.style.display = "block";
+      }
+    }
+
+    /* ---------- IOC SCAN ---------- */
+
+    async function handleIocScan() {
+      const input = document.getElementById("ioc-input");
+      const btn = document.getElementById("ioc-btn");
+      const iocError = document.getElementById("ioc-error");
+      const status = document.getElementById("ioc-status-text");
+
+      const indicator = (input.value || "").trim();
+      if (!indicator) return;
+
+      iocError.style.display = "none";
+      status.textContent = "Scanning indicator…";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch("/api/check", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ indicator })
+        });
+        if (!res.ok) throw new Error("API error " + res.status);
+        const data = await res.json();
+
+        const total = data.total_score ?? data.total ?? null;
+        const vtDet = data.virustotal_detections ?? data.vt_detects ?? data.vt_score ?? null;
+        const vtTotal = data.virustotal_total ?? data.vt_total ?? 70;
+        const abuse = data.abuse_confidence ?? data.abuse_score ?? null;
+
+        setText("total-score", total != null ? total : "–");
+        setText("vt-main", vtDet != null ? vtDet : "–");
+        setText("vt-denom", "/ " + (vtTotal != null ? vtTotal : "–"));
+        setText("abuse-main", abuse != null ? abuse : "–");
+
+        setText("info-domain", data.domain || "–");
+        setText("info-ip", data.ip || "–");
+        setText("info-isp", data.isp || data.org || "–");
+        setText("info-usage", data.usage_type || data.org || "–");
+        setText("info-asn", data.asn || "–");
+        setText("info-hostnames", (data.hostnames && data.hostnames.join(", ")) || data.hostname || "–");
+        setText("info-country", data.country || "–");
+        setText("info-city", data.city || "–");
+
+        const iocType = classifyIocType(indicator);
+        const level = classifyIocRisk(total, vtDet, abuse);
+        updateIocNextSteps(level, iocType);
+
+        status.innerHTML = `Scan completed for <strong>${indicator}</strong> (${iocType}).`;
+
+        const now = new Date();
+        addHistoryEntry({
+          ioc: indicator,
+          type: iocType,
+          total_score: typeof total === "number" ? total : null,
+          vt_detects: typeof vtDet === "number" ? vtDet : null,
+          vt_total: typeof vtTotal === "number" ? vtTotal : null,
+          abuse_score: typeof abuse === "number" ? abuse : null,
+          time: now.toLocaleString()
+        });
+      } catch (err) {
+        iocError.textContent = "Scan failed: " + err.message;
+        iocError.style.display = "block";
+        status.textContent = "Scan failed.";
+        updateIocNextSteps(null, null);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    /* ---------- FILE SCAN ---------- */
+
+    async function handleFileScan() {
+      const input = document.getElementById("file-input");
+      const btn = document.getElementById("file-btn");
+      const result = document.getElementById("file-result");
+      const errEl = document.getElementById("file-error");
+
+      if (!input.files || !input.files.length) return;
+
+      const file = input.files[0];
+      errEl.style.display = "none";
+      result.textContent = "Uploading and scanning file…";
+      btn.disabled = true;
+
+      try {
+        const fd = new FormData();
+        fd.append("file", file);
+
+        const res = await fetch("/api/file_scan", {
+          method: "POST",
+          body: fd
+        });
+        if (!res.ok) throw new Error("File API error " + res.status);
+        const data = await res.json();
+
+        result.textContent = JSON.stringify(data, null, 2);
+
+        const level = classifyFileRisk(data);
+        updateFileNextSteps(level);
+      } catch (err) {
+        errEl.textContent = "File scan failed: " + err.message;
+        errEl.style.display = "block";
+        updateFileNextSteps(null);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    /* ---------- INIT ---------- */
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.addEventListener("click", () => switchSection(btn.dataset.section));
+      });
+
+      document.getElementById("ioc-btn").addEventListener("click", handleIocScan);
+      document.getElementById("ioc-input").addEventListener("keydown", e => {
+        if (e.key === "Enter") handleIocScan();
+      });
+
+      document.getElementById("file-btn").addEventListener("click", handleFileScan);
+
+      document.getElementById("history-clear").addEventListener("click", clearHistory);
+
+      loadHistory();
+      fetchNews();
+    });
+  </script>
+</body>
+</html>

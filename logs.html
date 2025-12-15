@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+  <title>IOC Activity Logs</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { background-color: #111; color: #eee; font-family: sans-serif; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #444; padding: 8px; text-align: left; }
+  </style>
+</head>
+<body>
+  <h1>📊 IOC Activity Logs</h1>
+  <p>Last 100 lookups:</p>
+  <table>
+    <thead><tr><th>Time</th><th>Type</th><th>IOC</th><th>Risk</th></tr></thead>
+    <tbody id="logbody"></tbody>
+  </table>
+
+  <script>
+    fetch("/api/logs")
+      .then(res => res.json())
+      .then(data => {
+        const body = document.getElementById("logbody");
+        data.logs.forEach(log => {
+          body.innerHTML += `<tr>
+            <td>${log.timestamp}</td>
+            <td>${log.type}</td>
+            <td>${log.ioc}</td>
+            <td>${log.risk}</td>
+          </tr>`;
+        });
+      });
+  </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+  <title>File Scanner</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { background-color: #111; color: #eee; font-family: sans-serif; padding: 20px; }
+    input, button { padding: 10px; margin: 10px 0; }
+    pre { background: #222; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h1>🧪 File Scanner</h1>
+  <form id="scanForm">
+    <input type="file" id="fileInput"><br>
+    <button type="submit">Scan File</button>
+  </form>
+  <div id="status"></div>
+  <pre id="result">No scan yet.</pre>
+
+  <script>
+    const form = document.getElementById("scanForm");
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      const file = document.getElementById("fileInput").files[0];
+      if (!file) {
+        alert("Select a file first!");
+        return;
+      }
+      const status = document.getElementById("status");
+      const result = document.getElementById("result");
+
+      const formData = new FormData();
+      formData.append("file", file);
+      status.innerText = "Scanning...";
+
+      fetch("/api/file-scan", {
+        method: "POST",
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          status.innerText = "Error: " + data.error;
+        } else {
+          status.innerText = "Done.";
+          result.innerText = JSON.stringify(data, null, 2);
+        }
+      })
+      .catch(err => {
+        status.innerText = "Failed: " + err;
+      });
+    });
+  </script>
+</body>
+</html>

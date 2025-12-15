@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <title>Cybersecurity News</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { background-color: #111; color: #eee; font-family: sans-serif; padding: 20px; }
+    .card { background: #222; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+    a { color: #4fc3f7; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1>🔐 Cybersecurity News</h1>
+  <p>Live feed from top sources:</p>
+  <div id="news"></div>
+
+  <script>
+    fetch("/api/news")
+      .then(res => res.json())
+      .then(data => {
+        const div = document.getElementById("news");
+        data.items.forEach(item => {
+          div.innerHTML += `
+            <div class="card">
+              <h3>${item.title}</h3>
+              <p><strong>${item.source}</strong> – ${item.published}</p>
+              <p>${item.summary}</p>
+              <a href="${item.link}" target="_blank">Read full article</a>
+            </div>
+          `;
+        });
+      });
+  </script>
+</body>
+</html>
